@@ -8,44 +8,40 @@ De afkorting **LOD** staat hierbij voor **Level of Detail**: we maken afgeleiden
 
 ## Waarom is dit nodig?
 
-In zijn huidige vorm is het NWB zeer gedetailleerd. Dat is nuttig voor sommige toepassingen, maar te complex voor andere – zoals:
-
-- Macroscopische verkeersmodellen  
-- Landelijke verkeersveiligheidsanalyses  
-- Toepassingen waarbij consistente netwerken over meerdere jaren nodig zijn  
+In zijn huidige vorm is het NWB zeer gedetailleerd. Dat is nuttig voor sommige toepassingen, maar te complex voor andere – zoals macroscopische verkeersmodellen, landelijke verkeersveiligheidsanalyses of toepassingen waarbij consistente netwerken over meerdere jaren nodig zijn  
 
 Door het netwerk slim te versimpelen:
 
-- wordt het eenvoudiger te modelleren (minder kruispunten, kortere rekentijd);  
-- blijft de structuur vergelijkbaar door de tijd heen, wat trendanalyses vergemakkelijkt;  
-- worden specifieke constructies, zoals rotondes en parallelwegen, logisch samengevoegd;  
-- kunnen ook gemeenten en provincies eenvoudiger beleidstoepassingen ondersteunen.
+- **wordt het eenvoudiger te modelleren** (minder kruispunten, kortere rekentijd);  
+- **blijft de structuur vergelijkbaar door de tijd heen** (trendanalyses vergemakkelijken);
+- **worden specifieke constructies logisch samengevoegd** (zoals rotondes en parallelwegen);  
+- kunnen ook **gemeenten en provincies eenvoudiger beleidstoepassingen ondersteunen**.
 
 ## Wat kun je met deze code?
 
 De scripts in deze repository stellen je in staat om:
 
 - NWB-gegevens automatisch te versimpelen  
-- Kruispunten (intersecties) te clusteren en combineren  
-- Een netwerktopologie te creëren die eenvoudiger is dan het oorspronkelijke NWB  
+- kruispunten (intersecties) te clusteren en combineren  
+- een netwerktopologie te creëren die eenvoudiger is dan het oorspronkelijke NWB  
 
-Een belangrijk onderdeel is het clusteren van nodes (knooppunten) en wegsegmenten die feitelijk tot hetzelfde kruispunt behoren. Denk hierbij aan:
+Een belangrijk onderdeel is het clusteren van **nodes** (knooppunten) en **wegsegmenten** die feitelijk tot hetzelfde kruispunt behoren. Denk hierbij aan:
 
-- Rotondes die uit meerdere segmenten bestaan  
-- Aansluitingen op gescheiden rijbanen  
-- Bajonetkruispunten  
-- Clusters rondom één verkeersregelinstallatie  
+- rotondes die uit meerdere segmenten bestaan  
+- aansluitingen op gescheiden rijbanen  
+- bajonetkruispunten  
+- clusters rondom één verkeersregelinstallatie  
 
 Deze elementen worden logisch samengenomen tot één “intersectie” in het versimpelde netwerk.
 
 ## Voor wie is dit bedoeld?
 
-Deze tooling is metname bedoeld voor:
+Deze tooling is met name bedoeld voor:
 
-- Verkeersmodelleurs bij overheden en adviesbureaus  
-- Beleidsmakers die werken met geautomatiseerde verkeersveiligheidsanalyses  
-- Gemeenten of provincies die op zoek zijn naar een bruikbaardere versie van het NWB  
+- verkeersmodelleurs bij overheden en adviesbureaus  
+- beleidsmakers die werken met geautomatiseerde verkeersveiligheidsanalyses  
+- gemeenten of provincies die op zoek zijn naar een bruikbaardere versie van het NWB  
 
 ## Toekomst
 
-Op termijn kan dit project bijdragen aan een gestandaardiseerde manier van versimpeling van het NWB, bijvoorbeeld als open dataproduct naast het officiële NWB. We zijn benieuwd naar feedback, bijdragen en vooral ook gebruikservaringen!
+Op termijn kan dit project bijdragen aan een gestandaardiseerde manier van versimpeling van het NWB, bijvoorbeeld als open dataproduct naast het officiële NWB. We zijn benieuwd naar feedback op de methode, bijdragen aan de code en gebruikservaringen in de praktijk!
