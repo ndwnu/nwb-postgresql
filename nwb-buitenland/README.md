@@ -202,131 +202,73 @@ In dit blok worden een aantal kwaliteitscontroles gedaan:
 
 - Check 1: routeerbaarheid bij grens
   - Vergelijkt vooraf gedefinieerde grensovergangsvlakken met de bestaande knopen/verbindingen in nwb_buitenland.
+    - Missende overgangen
+      - Als een grensovergangsvlak geen overeenkomstige verbinding heeft, wordt deze als “missende overgang” gemarkeerd.
+      - Als de grensovergang categorie 1 heeft, wordt deze als “missende overgang, maar niet cruciaal” gelabeld.
+    - Nieuwe overgangen
+      - Als een nieuwe overgang binnen 5 meter ligt van een bestaande grensovergang, wordt die als “dicht bij bestaande” gelabeld.
+      - Anders wordt het een “nieuwe overgang” genoemd.
+  - Op basis van de resultaten van check 1 zijn er een aantal specifieke wegvakken aangepast. Deze handmatige acties worden met Kragten gedeeld.
+    - Deze aanpassingen worden opgegeven in het csv bestand Grensovergangen_handmatig.csv die met het script 02_Overige_bestanden_inladen.sql wordt ingeladen. Het is belangrijk om goed op te geven of het begin of eindpunt aangepast dient te worden.
+    - Hierbij wordt de geometrie van het (Vlaamse/OSM) wegvak verlengd zodat deze binnen 5 meter komt van een NWB wegvak en dezelfde knoopnummers krijgt.
+    - Dit zorgt ervoor dat belangrijke grensovergangen toch verbonden zijn in het netwerk.
+- Check 2: links met dezelfde begin- en eindknoop verwijderen
+  - alle wegvakken met jte_id_beg = jte_id_end worden opgeslagen in check_2_loop_verwijderd. Dit zijn tot nu toe wegvakken die in het OSM voorkomen.
+  - Deze wegvakken worden daarna verwijderd uit het netwerk.
+- Check 3: knopenanalyse
+  - Er wordt gecontroleerd of knopen het netwerk op meerdere locaties voorkomen.
+  - De maximale afstand tussen de verschillende locaties van dezelfde knoop wordt berekend.
+  - Knopen die vallen binnen onderstaande tolerantie worden verwijderd
+    - Als de bron ‘NWB’ is: verwijder knopen die minder dan 0,1 meter uit elkaar liggen.
+    - Als de bron niet ‘NWB’ is (OSM/Vlaams): verwijder knopen die minder dan 5 meter uit elkaar liggen.
+    - Hierdoor blijven alleen afwijkende knopen over. Bij de januari 2026 versie liggen deze in Nederland (oftewel in het NWB zelf).
+- Check 4: statistieken genereren
+  - Berekening van de volgende statistieken:
+    - Aantal wegvakken totaal
+    - Aantal unieke wegvak-ID’s
+    - Aantal wegvakken per bron
+    - Aantal wegvakken per FRC-code per bron
+    - Aantal wegvakken per FOW-code per bron
+    - Topologie-statistieken:
+      - aantal wegvakken met knoop 0
+      - aantal knopen die op meerdere locaties voorkomen (met grens > 0,1 m)
+      - aantal knopen met afwijking > 5 m
+    - De FRC/FOW statistieken worden per bron gemaakt. In eerdere versies van het NWB buitenland bleek namelijk dat de FRC klasse 3 niet voorkwam in het NWB. Door de statistieken per bron te genereren wordt dit nu eerder inzichtelijk.
 
-## Missende overgangen
+*Blok 7: NWB buitenland met relevante kolommen genereren*
 
-Als een grensovergangsvlak geen overeenkomstige verbinding heeft, wordt deze als “missende overgang” gemarkeerd.
+De volgende stappen worden uitgevoerd:
+- Eindresultaat-tabel aanmaken
+  - Een nieuwe tabel nwb_buitenland_eindresultaat wordt gemaakt.
+  - Deze bevat alleen de relevante kolommen uit nwb_buitenland (zoals bron, ID’s, weggegevens, FRC/FOW, geometrie, etc.).
+- Buffer rond Nederland maken
+  - Een buffer van 5000 meter wordt gemaakt rond het Nederlandse studiegebied (studiegebied tabel).
+- Variant met buitenland binnen 5 km van Nederland
+  - Een tweede tabel nwb_buitenland_eindresultaat_5km wordt gemaakt. Deze tabel wordt gebruikt voor het koppelen van FCD data.
+  - Deze bevat:
+    - Alle NWB-wegvakken (zonder afstandsfilter)
+    - Alle niet-NWB wegvakken (OSM/Vlaams) die binnen 5 km van Nederland liggen (via buffer intersectie)
 
-Als de grensovergang categorie 1 heeft, wordt deze als “missende overgang, maar niet cruciaal” gelabeld.
-
-## Nieuwe overgangen
-
-Als een nieuwe overgang binnen 5 meter ligt van een bestaande grensovergang, wordt die als “dicht bij bestaande” gelabeld.
-
-Anders wordt het een “nieuwe overgang” genoemd.
-
-Op basis van de resultaten van check 1 zijn er een aantal specifieke wegvakken aangepast. Deze handmatige acties worden met Kragten gedeeld.
-
-Deze aanpassingen worden opgegeven in het csv bestand Grensovergangen_handmatig.csv die met het script 02_Overige_bestanden_inladen.sql wordt ingeladen. Het is belangrijk om goed op te geven of het begin of eindpunt aangepast dient te worden.
-
-Hierbij wordt de geometrie van het (Vlaamse/OSM) wegvak verlengd zodat deze binnen 5 meter komt van een NWB wegvak en dezelfde knoopnummers krijgt.
-
-Dit zorgt ervoor dat belangrijke grensovergangen toch verbonden zijn in het netwerk.
-
-Check 2: links met dezelfde begin- en eindknoop verwijderen
-
-alle wegvakken met jte_id_beg = jte_id_end worden opgeslagen in check_2_loop_verwijderd. Dit zijn tot nu toe wegvakken die in het OSM voorkomen.
-
-Deze wegvakken worden daarna verwijderd uit het netwerk.
-
-Check 3: knopenanalyse
-
-Er wordt gecontroleerd of knopen het netwerk op meerdere locaties voorkomen.
-
-De maximale afstand tussen de verschillende locaties van dezelfde knoop wordt berekend.
-
-## Knopen die vallen binnen onderstaande tolerantie worden verwijderd
-
-Als de bron ‘NWB’ is: verwijder knopen die minder dan 0,1 meter uit elkaar liggen.
-
-Als de bron niet ‘NWB’ is (OSM/Vlaams): verwijder knopen die minder dan 5 meter uit elkaar liggen.
-
-Hierdoor blijven alleen afwijkende knopen over. Bij de januari 2026 versie liggen deze in Nederland (oftewel in het NWB zelf).
-
-## Check 4: statistieken genereren
-
-## Berekening van de volgende statistieken
-
-Aantal wegvakken totaal
-
-Aantal unieke wegvak-ID’s
-
-Aantal wegvakken per bron
-
-Aantal wegvakken per FRC-code per bron
-
-Aantal wegvakken per FOW-code per bron
-
-Topologie-statistieken
-
-aantal wegvakken met knoop 0
-
-aantal knopen die op meerdere locaties voorkomen (met grens > 0,1 m)
-
-aantal knopen met afwijking > 5 m
-
-De FRC/FOW statistieken worden per bron gemaakt. In eerdere versies van het NWB buitenland bleek namelijk dat de FRC klasse 3 niet voorkwam in het NWB. Door de statistieken per bron te genereren wordt dit nu eerder inzichtelijk.
-
-
-
-Blok 7: NWB buitenland met relevante kolommen genereren
-
-## De volgende stappen worden uitgevoerd
-
-Eindresultaat-tabel aanmaken
-
-Een nieuwe tabel nwb_buitenland_eindresultaat wordt gemaakt.
-
-Deze bevat alleen de relevante kolommen uit nwb_buitenland (zoals bron, ID’s, weggegevens, FRC/FOW, geometrie, etc.).
-
-Buffer rond Nederland maken
-
-Een buffer van 5000 meter wordt gemaakt rond het Nederlandse studiegebied (studiegebied tabel).
-
-Variant met buitenland binnen 5 km van Nederland
-
-Een tweede tabel nwb_buitenland_eindresultaat_5km wordt gemaakt. Deze tabel wordt gebruikt voor het koppelen van FCD data.
-
-## Deze bevat
-
-Alle NWB-wegvakken (zonder afstandsfilter)
-
-Alle niet-NWB wegvakken (OSM/Vlaams) die binnen 5 km van Nederland liggen (via buffer intersectie)
-
-
-
-Blok 8: Verschilanalyse eerdere versies
+*Blok 8: Verschilanalyse eerdere versies*
 
 In dit blok wordt het buitenland netwerk vergeleken met een andere versie. Deze wordt op dit moment hardcoded aangegeven in het script. Bij deze verschilanalyse kwam ook aan het licht dat veel OSM wegvakken zijn weggevallen tussen de januari 2026 versie en december 2025 versie.
 
-
-
-05_NWB_buitenland_exporteren.bat
+***05_NWB_buitenland_exporteren.bat***
 
 Dit script zorgt ervoor dat er twee shapebestanden worden geëxporteerd:
-
-Een NWB buitenland die het volledige studiegebied beslaat
-
-Een NWB buitenland die alleen buitenlandse wegvakken binnen 5 km van Nederland bevat.
+- Een NWB buitenland die het volledige studiegebied beslaat
+- Een NWB buitenland die alleen buitenlandse wegvakken binnen 5 km van Nederland bevat.
 
 De shapebestanden worden geplaatst in de map Resultaten\*maand*_*jaar*
 
-
-
 ![image10.png](images/image10.png)
-
-
 
 Daarnaast worden ook de controle bestanden geëxporteerd: Checks 1 t/m 3 genereren shapebestanden en check 4 is een txt bestand waarin de statistieken zichtbaar zijn.  De checks worden geplaatst in de map Checks\check_*
 
-
-
 ![image11.png](images/image11.png)
 
-Locatie NWB buitenland
+## Locatie NWB buitenland
 
 Het NWB buitenland wordt uiteindelijk gepubliceerd op de volgende locatie: https://maps.ndw.nu/api/v1/nwbForeignCountries/20251201/geopackage/
-
-
 
 Het is belangrijk dat hierbij wordt verwezen naar het gebruik van OSM. Bijvoorbeeld: Onder andere afgeleid van OpenStreetMap data © OpenStreetMap contributors, ODbL 1.0. Bewerking door NDW.
