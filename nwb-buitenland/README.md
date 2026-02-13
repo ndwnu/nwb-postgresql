@@ -63,7 +63,7 @@ Deze bestanden zijn geplaatst in de map Data\04_Studiegebied
 
 Er zijn een aantal scripts nodig om geautomatiseerd een NWB buitenland te maken. Deze worden hieronder beschreven
 
-***01_Shapebestanden_inladen.bat***
+**01_Shapebestanden_inladen.bat**
 
 Dit script importeert vijf bron-/hulpbestanden die een shapeformaat hebben:
 - NWB
@@ -74,14 +74,14 @@ Dit script importeert vijf bron-/hulpbestanden die een shapeformaat hebben:
 
 Bij het importeren van het netwerk van Vlaanderen wordt tijdens de import gelijk de geometrie getransformeerd van SRID 31370 naar 28992. De overige 4 shapebestanden zijn al in de gewenste RD project van 28992.
 
-***02_Overige_bestanden_inladen.sql***
+**02_Overige_bestanden_inladen.sql**
 
 Dit script importeert de drie bronbestanden die een csv formaat hebben:
 - WKD van RVM
 - WKD van wegencategorisering
 - Handmatige verbindingen bij de grenzen. Dit bestand kun je als gebruiker invullen. Ook werkt het script als het je het bestand met uitzondering van de kolomnamen leeghaalt.
 
-***03_Routeerbaar_OSM_genereren_en_inladen.bat***
+**03_Routeerbaar_OSM_genereren_en_inladen.bat**
 
 Dit script voegt de vier .pbf bestanden van OSM samen en maakt van dit samengevoegde .pbf bestand een routeerbaar netwerk (met random knoopnummers). Het netwerk van OSM is namelijk in eerste instantie niet routeerbaar.
 
@@ -91,7 +91,7 @@ Voor het samenvoegen en routeerbaar maken van de OSM pbf bestanden worden twee o
 
 ![image8.png](images/image8.png)
 
-***04_NWB_buitenland_genereren.sql***
+**04_NWB_buitenland_genereren.sql**
 
 Dit script bevat een aantal blokken die hieronder worden behandeld.
 
@@ -101,6 +101,7 @@ De volgende stappen worden uitgevoerd:
 - Indexen aanmaken: Deze zorgen ervoor dat ruimtelijke queries (zoals ST_Intersects, ST_DWithin, etc.) snel worden uitgevoerd.
 - Tabellen analyseren: Door het analyseren van de tabellen verzamelt de database statistieken over zowel attribuut- als geometriekolommen. Deze statistieken worden door de query planner gebruikt om efficiëntere uitvoeringsplannen te kiezen, waardoor ruimtelijke queries die later worden uitgevoerd (zoals ST_Intersects, ST_DWithin en ruimtelijke joins) zo optimaal mogelijk presteren.
 - Grensovergangen genereren: De grensovergangen tussen de studiegebieden (bijv. Nederland–OSM) worden nodig om OSM-wegvakken op de grens te splitsen.Door de grens een kleine buffer te geven (0.01 meter) worden nauwkeurigheidsproblemen vermeden.
+- Grensovergangen met een buffer genereren. Deze laag is later nodig om een check uit te voeren.
 
 *Blok 2: Vlaanderen netwerk voorbereiden*
 
@@ -201,7 +202,7 @@ De volgende stappen worden uitgevoerd:
 In dit blok worden een aantal kwaliteitscontroles gedaan:
 
 - Check 1: routeerbaarheid bij grens
-  - Vergelijkt vooraf gedefinieerde grensovergangsvlakken met de bestaande knopen/verbindingen in nwb_buitenland.
+  - Vergelijkt vooraf gedefinieerde grensovergangsvlakken (de buffer variant) met de bestaande knopen/verbindingen in nwb_buitenland.
     - Missende overgangen
       - Als een grensovergangsvlak geen overeenkomstige verbinding heeft, wordt deze als “missende overgang” gemarkeerd.
       - Als de grensovergang categorie 1 heeft, wordt deze als “missende overgang, maar niet cruciaal” gelabeld.
@@ -253,7 +254,7 @@ De volgende stappen worden uitgevoerd:
 
 In dit blok wordt het buitenland netwerk vergeleken met een andere versie. Deze wordt op dit moment hardcoded aangegeven in het script. Bij deze verschilanalyse kwam ook aan het licht dat veel OSM wegvakken zijn weggevallen tussen de januari 2026 versie en december 2025 versie.
 
-***05_NWB_buitenland_exporteren.bat***
+**05_NWB_buitenland_exporteren.bat**
 
 Dit script zorgt ervoor dat er twee shapebestanden worden geëxporteerd:
 - Een NWB buitenland die het volledige studiegebied beslaat
