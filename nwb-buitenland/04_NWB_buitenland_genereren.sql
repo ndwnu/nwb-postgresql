@@ -27,6 +27,8 @@ ANALYZE nwb;
 ANALYZE vlaanderen;
 ANALYSE routeerbaar_2po_4pgr; 
 ANALYZE studiegebied;
+ANALYZE grensovergangen;
+ANALYZE uitsluitingen;
 
 -- GRENSOVERGANGEN GENEREREN 
 -- zijn later nodig voor het afknippen van buitenland links
@@ -40,6 +42,13 @@ JOIN studiegebied b ON a.gebied < b.gebied
 WHERE ST_Intersects(a.geom, b.geom);
 
 CREATE INDEX ON grensovergangen_lijn USING GIST(geom);
+
+-- EN BUFFER TOEVOEGEN AAN GRENSOVERGANGEN (VOOR CHECKS)
+ALTER TABLE grensovergangen ADD COLUMN geom_buffer geometry;
+UPDATE grensovergangen
+SET geom_buffer = ST_Buffer(geom, 5);
+
+CREATE INDEX ON grensovergangen USING GIST(geom_buffer);
 
 ----------------------------------------------------------------------------------------------------------
 -- BLOK 2: VLAANDEREN NETWERK VOORBEREIDEN
@@ -552,6 +561,7 @@ WHERE a.bron = 'NWB' AND b.bron IN ('Vlaams register', 'OSM')
       AND ST_DWithin(a.geom, b.geom, 5);
 
 CREATE INDEX ON nwb_buitenland_verbindingen USING GIST(geom);
+CREATE INDEX ON nwb_buitenland_verbindingen USING BTREE(node_a);
 CREATE INDEX ON nwb_buitenland_verbindingen USING BTREE(node_b);
 
 -- VERBINDINGEN TERUGVERTALEN NAAR TABEL MET LINKS 
@@ -585,13 +595,13 @@ LEFT JOIN nwb_buitenland_nodes nodes ON ST_Intersects(grensovergangen.geom, node
 LEFT JOIN nwb_buitenland_verbindingen verbindingen ON nodes.node = verbindingen.node_a
 WHERE verbindingen.node_a IS NULL AND nodes.bron = 'NWB'
 UNION ALL 
-SELECT  (CASE WHEN ST_Intersects(ST_Buffer(buffer.geom,5), nodes.geom) IS NOT NULL THEN 'nieuwe overgang dicht bij bestaande overgang'
+SELECT  (CASE WHEN ST_Intersects(buffer.geom_buffer, nodes.geom) IS NOT NULL THEN 'nieuwe overgang dicht bij bestaande overgang'
 			  ELSE 'nieuwe overgang' 
 		      END) AS soort_extra,
         ST_Buffer(nodes.geom, 5) AS geom
 FROM nwb_buitenland_nodes nodes
 LEFT JOIN grensovergangen ON ST_Intersects(grensovergangen.geom, nodes.geom)
-LEFT JOIN grensovergangen buffer ON ST_Intersects(ST_Buffer(buffer.geom,5), nodes.geom)
+LEFT JOIN grensovergangen buffer ON ST_Intersects(buffer.geom_buffer, nodes.geom)
 LEFT JOIN nwb_buitenland_verbindingen verbindingen ON nodes.node = verbindingen.node_a
 WHERE verbindingen.node_a IS NOT NULL AND grensovergangen.geom IS NULL;
 
@@ -802,7 +812,7 @@ UNION ALL
 SELECT 	'aantal knopen in Nederland die op meerdere locaties voorkomen (meer dan 0.1m afstand)',
 		count(*) FROM check_3_knopen_analyse WHERE bronnen = 'NWB'
 UNION ALL
-SELECT 	'aantal knopen in die op meerdere locaties voorkomen (meer dan 5m afstand)',
+SELECT 	'aantal knopen die op meerdere locaties voorkomen (meer dan 5m afstand)',
 		count(*) FROM check_3_knopen_analyse WHERE max_distance_tussen_nodes > 5;
 		
 ----------------------------------------------------------------------------------------------------------
@@ -920,7 +930,7 @@ SELECT nieuw.geom,
 	   nieuw.jte_id_end,
        'niet in oud' AS soort
 FROM nwb_buitenland_eindresultaat nieuw 
-LEFT JOIN resultaten.nwb_buitenland_eindresultaat oud ON nieuw.orig_id = oud.orig_id 
+LEFT JOIN nwb_buitenland_januari.nwb_buitenland_eindresultaat oud ON nieuw.orig_id = oud.orig_id 
 WHERE oud.geom IS NULL
 UNION ALL 
 SELECT oud.geom,
@@ -928,6 +938,7 @@ SELECT oud.geom,
 	   oud.jte_id_beg,
 	   oud.jte_id_end,
        'niet in nieuw' AS soort
-FROM resultaten.nwb_buitenland_eindresultaat oud  
+FROM nwb_buitenland_januari.nwb_buitenland_eindresultaat oud
 LEFT JOIN nwb_buitenland_eindresultaat nieuw ON nieuw.orig_id = oud.orig_id 
+
 WHERE nieuw.geom IS NULL;
