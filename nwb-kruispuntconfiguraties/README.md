@@ -47,7 +47,7 @@ De belangrijkste databronnen zijn het NWB en verschillende bijbehorende WKD-best
 | Drempels | [NDW-datasets](https://verkeersveiligheid.ndw.nu/datasets) |
 | Verkeersbordenbestand | [NDW Open Data](https://opendata.ndw.nu/) |
 
-> **Let op:** gebruik voor alle databronnen bestanden met dezelfde peildatum. Dit voorkomt inconsistenties tussen de verschillende gegevensbronnen.
+> **Let op:** gebruik voor alle databronnen bestanden met zoveel mogelijk dezelfde peildatum, met name voor het NWB en de corresponderende WKD-sets. Dit voorkomt inconsistenties tussen de verschillende gegevensbronnen.
 
 ## Kanttekening
 
