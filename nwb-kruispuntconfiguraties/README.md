@@ -38,9 +38,7 @@ De scripts gaan uit van de volgende vaste mappenstructuur:
 
 De scripts gebruiken verschillende externe databronnen. Deze bestanden kunnen worden geplaatst in de map `00 Data`.
 
-De belangrijkste databronnen zijn het NWB en verschillende bijbehorende WKD-bestanden. Bij het uitvoeren van de scripts is het belangrijk om bestanden met dezelfde peildatum te gebruiken.
-
-De gebruikte databronnen zijn beschikbaar via de volgende links:
+De belangrijkste databronnen zijn het NWB en verschillende bijbehorende WKD-bestanden. De gebruikte databronnen zijn beschikbaar via de volgende links:
 
 | Databron | Link |
 |---|---|
